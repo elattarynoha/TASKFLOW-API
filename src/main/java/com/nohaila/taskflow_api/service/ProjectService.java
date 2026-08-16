@@ -4,10 +4,11 @@ import com.nohaila.taskflow_api.dto.ProjectRequest;
 import com.nohaila.taskflow_api.dto.ProjectResponse;
 import com.nohaila.taskflow_api.entity.Project;
 import com.nohaila.taskflow_api.entity.User;
+import com.nohaila.taskflow_api.exception.ResourceNotFoundException;
 import com.nohaila.taskflow_api.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import com.nohaila.taskflow_api.exception.AccessDeniedException;
 import java.util.List;
 
 @Service
@@ -47,17 +48,16 @@ public class ProjectService {
         projectRepository.delete(project);
     }
 
-    private Project findOwnedProjectOrThrow(Long id) {
-        User currentUser = authUtil.getCurrentUser();
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+   private Project findOwnedProjectOrThrow(Long id) {
+    User currentUser = authUtil.getCurrentUser();
+    Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
 
-        if (!project.getOwner().getId().equals(currentUser.getId())) {
-            throw new RuntimeException("You do not have access to this project");
-        }
-        return project;
+    if (!project.getOwner().getId().equals(currentUser.getId())) {
+        throw new AccessDeniedException("You do not have access to this project");
     }
-
+    return project;
+}
     private ProjectResponse toResponse(Project project) {
         return new ProjectResponse(
                 project.getId(),
