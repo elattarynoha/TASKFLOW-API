@@ -5,7 +5,7 @@ import com.nohaila.taskflow_api.dto.TaskResponse;
 import com.nohaila.taskflow_api.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -15,7 +15,7 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping("/api/projects/{projectId}/tasks")
-    public TaskResponse create(@PathVariable Long projectId, @RequestBody TaskRequest request) {
+    public TaskResponse create(@PathVariable Long projectId, @Valid @RequestBody TaskRequest request) {
         return taskService.create(projectId, request);
     }
 

@@ -9,7 +9,7 @@ import com.nohaila.taskflow_api.repository.ProjectRepository;
 import com.nohaila.taskflow_api.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import com.nohaila.taskflow_api.exception.AccessDeniedException;
 import java.util.List;
 
 @Service
@@ -67,9 +67,9 @@ public class TaskService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
-        if (!project.getOwner().getId().equals(currentUser.getId())) {
-            throw new RuntimeException("You do not have access to this project");
-        }
+       if (!project.getOwner().getId().equals(currentUser.getId())) {
+        throw new AccessDeniedException("You do not have access to this project");
+    }
         return project;
     }
 
