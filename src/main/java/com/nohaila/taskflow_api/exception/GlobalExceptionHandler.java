@@ -60,7 +60,15 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
-
+@ExceptionHandler(io.jsonwebtoken.ExpiredJwtException.class)
+public ResponseEntity<ErrorResponse> handleExpiredJwt(io.jsonwebtoken.ExpiredJwtException ex) {
+    ErrorResponse response = new ErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Your session has expired. Please log in again.",
+            LocalDateTime.now()
+    );
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+}
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
         ErrorResponse response = new ErrorResponse(
