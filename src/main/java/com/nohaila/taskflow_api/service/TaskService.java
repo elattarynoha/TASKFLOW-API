@@ -1,5 +1,6 @@
 package com.nohaila.taskflow_api.service;
 
+import com.nohaila.taskflow_api.dto.PagedResponse;
 import com.nohaila.taskflow_api.dto.TaskRequest;
 import com.nohaila.taskflow_api.dto.TaskResponse;
 import com.nohaila.taskflow_api.entity.Project;
@@ -8,6 +9,12 @@ import com.nohaila.taskflow_api.entity.User;
 import com.nohaila.taskflow_api.repository.ProjectRepository;
 import com.nohaila.taskflow_api.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
+import com.nohaila.taskflow_api.dto.PagedResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import com.nohaila.taskflow_api.exception.AccessDeniedException;
 import java.util.List;
@@ -82,4 +89,18 @@ public class TaskService {
                 task.getProject().getId()
         );
     }
+
+public PagedResponse<TaskResponse> getTasksForProjectPaged(Long projectId, int page, int size, String sortBy, String direction) {
+    getOwnedProject(projectId);
+
+    Sort sort = direction.equalsIgnoreCase("desc")
+            ? Sort.by(sortBy).descending()
+            : Sort.by(sortBy).ascending();
+
+    Pageable pageable = PageRequest.of(page, size, sort);
+    Page<Task> taskPage = taskRepository.findByProjectId(projectId, pageable);
+    Page<TaskResponse> responsePage = taskPage.map(this::toResponse);
+
+    return PagedResponse.of(responsePage);
+}
 }
