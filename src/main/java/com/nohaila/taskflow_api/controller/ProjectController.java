@@ -1,9 +1,10 @@
 package com.nohaila.taskflow_api.controller;
 
+import com.nohaila.taskflow_api.dto.PagedResponse;
 import com.nohaila.taskflow_api.dto.ProjectRequest;
 import com.nohaila.taskflow_api.dto.ProjectResponse;
 import com.nohaila.taskflow_api.service.ProjectService;
-
+import com.nohaila.taskflow_api.dto.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -36,4 +37,13 @@ public class ProjectController {
     public void delete(@Valid @PathVariable Long id) {
         projectService.delete(id);
     }
+    @GetMapping("/paged")
+public PagedResponse<ProjectResponse> getMyProjectsPaged(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "id") String sortBy,
+        @RequestParam(defaultValue = "asc") String direction
+) {
+    return projectService.getMyProjectsPaged(page, size, sortBy, direction);
+}
 }

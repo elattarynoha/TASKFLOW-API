@@ -1,5 +1,6 @@
 package com.nohaila.taskflow_api.controller;
 
+import com.nohaila.taskflow_api.dto.PagedResponse;
 import com.nohaila.taskflow_api.dto.TaskRequest;
 import com.nohaila.taskflow_api.dto.TaskResponse;
 import com.nohaila.taskflow_api.service.TaskService;
@@ -7,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
-
+import com.nohaila.taskflow_api.dto.PagedResponse;
 @RestController
 @RequiredArgsConstructor
 public class TaskController {
@@ -33,4 +34,14 @@ public class TaskController {
     public void delete(@PathVariable Long taskId) {
         taskService.delete(taskId);
     }
+    @GetMapping("/api/projects/{projectId}/tasks/paged")
+public PagedResponse<TaskResponse> getTasksPaged(
+        @PathVariable Long projectId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "id") String sortBy,
+        @RequestParam(defaultValue = "asc") String direction
+) {
+    return taskService.getTasksForProjectPaged(projectId, page, size, sortBy, direction);
+}
 }
