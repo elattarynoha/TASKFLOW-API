@@ -3,8 +3,8 @@ package com.nohaila.taskflow_api.controller;
 import com.nohaila.taskflow_api.dto.PagedResponse;
 import com.nohaila.taskflow_api.dto.ProjectRequest;
 import com.nohaila.taskflow_api.dto.ProjectResponse;
+import com.nohaila.taskflow_api.entity.ProjectStatus;
 import com.nohaila.taskflow_api.service.ProjectService;
-import com.nohaila.taskflow_api.dto.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @PostMapping
-    public ProjectResponse create(@RequestBody ProjectRequest request) {
+    public ProjectResponse create(@Valid @RequestBody ProjectRequest request) {
         return projectService.create(request);
     }
 
@@ -28,22 +28,30 @@ public class ProjectController {
         return projectService.getMyProjects();
     }
 
+    @GetMapping("/paged")
+    public PagedResponse<ProjectResponse> getMyProjectsPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) ProjectStatus status
+    ) {
+        return projectService.getMyProjectsPaged(page, size, sortBy, direction, search, status);
+    }
+
     @GetMapping("/{id}")
     public ProjectResponse getById(@PathVariable Long id) {
         return projectService.getById(id);
     }
 
+    @PatchMapping("/{id}")
+    public ProjectResponse update(@PathVariable Long id, @RequestBody ProjectRequest request) {
+        return projectService.updateStatus(id, request);
+    }
+
     @DeleteMapping("/{id}")
-    public void delete(@Valid @PathVariable Long id) {
+    public void delete(@PathVariable Long id) {
         projectService.delete(id);
     }
-    @GetMapping("/paged")
-public PagedResponse<ProjectResponse> getMyProjectsPaged(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        @RequestParam(defaultValue = "id") String sortBy,
-        @RequestParam(defaultValue = "asc") String direction
-) {
-    return projectService.getMyProjectsPaged(page, size, sortBy, direction);
-}
 }

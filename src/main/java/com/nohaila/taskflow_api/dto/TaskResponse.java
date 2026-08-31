@@ -1,5 +1,6 @@
 package com.nohaila.taskflow_api.dto;
 
+import com.nohaila.taskflow_api.entity.TaskPriority;
 import com.nohaila.taskflow_api.entity.TaskStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,5 +12,6 @@ public class TaskResponse {
     private String title;
     private String description;
     private TaskStatus status;
+    private TaskPriority priority;
     private Long projectId;
 }

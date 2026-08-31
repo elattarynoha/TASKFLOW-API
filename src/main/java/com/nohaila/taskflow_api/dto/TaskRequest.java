@@ -1,5 +1,6 @@
 package com.nohaila.taskflow_api.dto;
 
+import com.nohaila.taskflow_api.entity.TaskPriority;
 import com.nohaila.taskflow_api.entity.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -18,4 +19,6 @@ public class TaskRequest {
     private String description;
 
     private TaskStatus status;
+
+    private TaskPriority priority;
 }
