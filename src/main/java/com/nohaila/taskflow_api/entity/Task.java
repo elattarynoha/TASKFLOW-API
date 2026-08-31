@@ -21,6 +21,9 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private TaskStatus status = TaskStatus.TODO;
 
+    @Enumerated(EnumType.STRING)
+    private TaskPriority priority = TaskPriority.MEDIUM;
+
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;

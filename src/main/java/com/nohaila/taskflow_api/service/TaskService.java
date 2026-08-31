@@ -6,17 +6,16 @@ import com.nohaila.taskflow_api.dto.TaskResponse;
 import com.nohaila.taskflow_api.entity.Project;
 import com.nohaila.taskflow_api.entity.Task;
 import com.nohaila.taskflow_api.entity.User;
+import com.nohaila.taskflow_api.exception.AccessDeniedException;
 import com.nohaila.taskflow_api.repository.ProjectRepository;
 import com.nohaila.taskflow_api.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
-import com.nohaila.taskflow_api.dto.PagedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import com.nohaila.taskflow_api.exception.AccessDeniedException;
+
 import java.util.List;
 
 @Service
@@ -34,6 +33,7 @@ public class TaskService {
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
         task.setStatus(request.getStatus() != null ? request.getStatus() : task.getStatus());
+        task.setPriority(request.getPriority() != null ? request.getPriority() : task.getPriority());
         task.setProject(project);
 
         Task saved = taskRepository.save(task);
@@ -57,6 +57,7 @@ public class TaskService {
         if (request.getStatus() != null) task.setStatus(request.getStatus());
         if (request.getTitle() != null) task.setTitle(request.getTitle());
         if (request.getDescription() != null) task.setDescription(request.getDescription());
+        if (request.getPriority() != null) task.setPriority(request.getPriority());
 
         Task updated = taskRepository.save(task);
         return toResponse(updated);
@@ -74,9 +75,9 @@ public class TaskService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
-       if (!project.getOwner().getId().equals(currentUser.getId())) {
-        throw new AccessDeniedException("You do not have access to this project");
-    }
+        if (!project.getOwner().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("You do not have access to this project");
+        }
         return project;
     }
 
@@ -86,21 +87,22 @@ public class TaskService {
                 task.getTitle(),
                 task.getDescription(),
                 task.getStatus(),
+                task.getPriority(),
                 task.getProject().getId()
         );
     }
 
-public PagedResponse<TaskResponse> getTasksForProjectPaged(Long projectId, int page, int size, String sortBy, String direction) {
-    getOwnedProject(projectId);
+    public PagedResponse<TaskResponse> getTasksForProjectPaged(Long projectId, int page, int size, String sortBy, String direction) {
+        getOwnedProject(projectId);
 
-    Sort sort = direction.equalsIgnoreCase("desc")
-            ? Sort.by(sortBy).descending()
-            : Sort.by(sortBy).ascending();
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
 
-    Pageable pageable = PageRequest.of(page, size, sort);
-    Page<Task> taskPage = taskRepository.findByProjectId(projectId, pageable);
-    Page<TaskResponse> responsePage = taskPage.map(this::toResponse);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Task> taskPage = taskRepository.findByProjectId(projectId, pageable);
+        Page<TaskResponse> responsePage = taskPage.map(this::toResponse);
 
-    return PagedResponse.of(responsePage);
-}
+        return PagedResponse.of(responsePage);
+    }
 }
