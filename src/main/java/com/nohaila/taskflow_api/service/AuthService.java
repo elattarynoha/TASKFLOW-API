@@ -1,5 +1,5 @@
 package com.nohaila.taskflow_api.service;
-
+import com.nohaila.taskflow_api.exception.EmailAlreadyExistsException;
 import com.nohaila.taskflow_api.dto.AuthResponse;
 import com.nohaila.taskflow_api.dto.LoginRequest;
 import com.nohaila.taskflow_api.dto.RegisterRequest;
@@ -21,17 +21,21 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse register(RegisterRequest request) {
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setFullName(request.getFullName());
 
-        userRepository.save(user);
-
-        String token = jwtService.generateToken(user);
-        return new AuthResponse(token);
+    if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        throw new EmailAlreadyExistsException("Email already in use");
     }
 
+    User user = new User();
+    user.setEmail(request.getEmail());
+    user.setPassword(passwordEncoder.encode(request.getPassword()));
+    user.setFullName(request.getFullName());
+
+    userRepository.save(user);
+
+    String token = jwtService.generateToken(user);
+    return new AuthResponse(token);
+}
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -43,4 +47,7 @@ public class AuthService {
         String token = jwtService.generateToken(user);
         return new AuthResponse(token);
     }
+    
+
+    
 }

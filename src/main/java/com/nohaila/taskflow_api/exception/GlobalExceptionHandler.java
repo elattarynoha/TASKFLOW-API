@@ -78,4 +78,17 @@ public ResponseEntity<ErrorResponse> handleExpiredJwt(io.jsonwebtoken.ExpiredJwt
         );
         return ResponseEntity.internalServerError().body(response);
     }
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+public ResponseEntity<ErrorResponse> handleEmailAlreadyExists(
+        EmailAlreadyExistsException ex) {
+
+    ErrorResponse response = new ErrorResponse(
+            HttpStatus.CONFLICT.value(),
+            ex.getMessage(),
+            LocalDateTime.now()
+    );
+
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+}
+    
 }
